@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -165,6 +166,7 @@
         }
 
         @keyframes shake {
+
             0%,
             100% {
                 transform: translateX(0);
@@ -269,12 +271,13 @@
                                 placeholder="Ví dụ: B23DCKH130" required autocomplete="username">
                         </div>
                         <div class="form-group">
-                            <label for="password" class="form-label">Mật khẩu QLĐT</label>
+                            <label for="password" class="form-label">Mật khẩu</label>
                             <div class="password-container">
                                 <input type="password" id="password" name="password" class="form-input"
                                     placeholder="••••••••" required autocomplete="current-password">
                                 <button type="button" class="toggle-password" id="togglePassword" title="Hiện mật khẩu">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                         <circle cx="12" cy="12" r="3"></circle>
                                     </svg>
@@ -291,10 +294,10 @@
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function() {
+        togglePassword.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             if (type === 'text') {
                 this.innerHTML = `
                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -315,13 +318,13 @@
         });
 
         // Chống F12, chuột phải, Ctrl+Shift+I, v.v.
-        document.addEventListener('contextmenu', function(e) {
+        document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) || 
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
                 (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
                 e.preventDefault();
             }
