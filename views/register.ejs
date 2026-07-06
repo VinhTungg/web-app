@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách môn học</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent: #db2777;
+            --glass-bg: rgba(255, 255, 255, 0.78);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: #e2e8f0;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --header-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            --floating-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 30px 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Gradient Glows - Soft Light Mode Pastels */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: 0;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        body::before {
+            background: radial-gradient(circle, #c7d2fe 0%, transparent 70%);
+            top: -20%;
+            right: 0%;
+        }
+
+        body::after {
+            background: radial-gradient(circle, #fbcfe8 0%, transparent 70%);
+            bottom: -20%;
+            left: -10%;
+        }
+
+        .main-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Top Header Panel */
+        .header-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: var(--header-shadow);
+        }
+
+        .user-info h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .actions-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.35);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-color);
+            border: 1px solid var(--input-border);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fee2e2;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stat-value.primary {
+            color: var(--primary);
+        }
+
+        .stat-value.accent {
+            color: var(--accent);
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .filter-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1e293b;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .filter-input {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .filter-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background: white;
+        }
+
+        /* Error/Notification Banner */
+        .toast-banner {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #ef4444;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast-banner.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Main Table Container */
+        .table-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            font-weight: 700;
+            color: #334155;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-color);
+            transition: background-color 0.2s ease;
+        }
+
+        tr {
+            transition: all 0.2s ease;
+        }
+
+        tr.selected-row {
+            background-color: rgba(79, 70, 229, 0.05) !important;
+        }
+
+        tr.selected-row td {
+            border-bottom-color: rgba(79, 70, 229, 0.1);
+        }
+
+        tr.duplicate-alert {
+            animation: duplicate-blink 0.8s ease 2;
+        }
+
+        @keyframes duplicate-blink {
+
+            0%,
+            100% {
+                background-color: transparent;
+            }
+
+            50% {
+                background-color: rgba(239, 68, 68, 0.15);
+            }
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .checkbox-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .custom-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            top: 2px;
+            left: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-info {
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(5, 150, 105, 0.08);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--danger);
+        }
+
+        /* Floating Save Bar */
+        .floating-bar {
+            position: sticky;
+            bottom: 24px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--floating-shadow);
+            z-index: 100;
+        }
+
+        .floating-info {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .floating-info span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Real-time Alert Toast -->
+    <div id="alertToast" class="toast-banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span id="alertMsg">Lỗi xảy ra!</span>
+    </div>
+
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-panel">
+            <div class="user-info">
+                <h1>Hệ thống Đăng ký Lớp học phần</h1>
+                <p>Sinh viên: <strong>
+                        <%= studentName %>
+                    </strong> (<%= username %>)</p>
+            </div>
+            <div class="actions-header">
+                <a href="/logout" class="btn btn-danger">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
+                    </svg>
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Tổng số môn học mở kỳ này</span>
+                <span class="stat-value">
+                    <%= dsNhomTo.length %>
+                </span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Số môn đã chọn</span>
+                <span class="stat-value primary" id="countSelected">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Tổng số tín chỉ</span>
+                <span class="stat-value accent" id="countCredits">0</span>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-panel">
+            <div class="filter-title">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
+                </svg>
+                Lọc & tìm kiếm môn học nhanh
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">Mã môn</label>
+                    <input type="text" id="filterMaMon" class="filter-input" placeholder="Ví dụ: INT1332">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">Tên môn học</label>
+                    <input type="text" id="filterTenMon" class="filter-input" placeholder="Ví dụ: Cơ sở dữ liệu">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">Nhóm</label>
+                    <input type="text" id="filterNhom" class="filter-input" placeholder="Ví dụ: 01">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">Tổ thực hành</label>
+                    <input type="text" id="filterTo" class="filter-input" placeholder="Ví dụ: 01">
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 60px; text-align: center;">Chọn</th>
+                            <th>Mã môn</th>
+                            <th>Tên môn học</th>
+                            <th style="text-align: center;">Tín chỉ</th>
+                            <th style="text-align: center;">Nhóm</th>
+                            <th style="text-align: center;">Tổ</th>
+                            <th>Lớp dự kiến</th>
+                            <th>Thời khóa biểu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseTableBody">
+                        <% if (dsNhomTo.length===0) { %>
+                            <tr>
+                                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                                    Không tìm thấy dữ liệu nhóm tổ nào mở cho sinh viên này!
+                                </td>
+                            </tr>
+                            <% } else { %>
+                                <% dsNhomTo.forEach(function(item) { 
+                                    // Kiểm tra xem môn này đã được cấu hình sẵn trong config.json hay chưa
+                                    const isPreselected = currentTargets.some(t => 
+                                        t.ma_mon.toLowerCase() === item.ma_mon.toLowerCase() && 
+                                        t.nhom_to.toLowerCase() === item.nhom_to.toLowerCase() && 
+                                        (t.to || "").toLowerCase() === (item.to || "").toLowerCase()
+                                    );
+                                %>
+                                    <tr data-ma="<%= item.ma_mon %>" data-ten="<%= item.ten_mon %>"
+                                        data-nhom="<%= item.nhom_to %>" data-to="<%= item.to || '' %>"
+                                        data-id="<%= item.id_to_hoc %>" data-tc="<%= item.so_tc || '0' %>"
+                                        class="<%= isPreselected ? 'selected-row' : '' %>">
+
+                                        <td style="text-align: center;">
+                                            <label class="checkbox-container">
+                                                <input type="checkbox" class="custom-checkbox course-check"
+                                                    value="<%= item.id_to_hoc %>" <%=isPreselected ? 'checked' : '' %>>
+                                            </label>
+                                        </td>
+                                        <td><span class="badge badge-info">
+                                                <%= item.ma_mon %>
+                                            </span></td>
+                                        <td style="font-weight: 500;">
+                                            <%= item.ten_mon %>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <%= item.so_tc %>
+                                        </td>
+                                        <td style="text-align: center; font-weight: 600; color: #a5b4fc;">
+                                            <%= item.nhom_to %>
+                                        </td>
+                                        <td style="text-align: center; font-weight: 600; color: #f472b6;">
+                                            <%= item.to || '-' %>
+                                        </td>
+                                        <td style="font-size: 0.8rem; color: var(--text-muted);">
+                                            <%= item.lop %>
+                                        </td>
+                                        <td style="font-size: 0.8rem; color: var(--text-muted);">
+                                            <%= item.tkb %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Floating Submit Bar -->
+        <div class="floating-bar">
+            <div class="floating-info">
+                Đã chọn <span id="selectedCountSpan">0</span> môn học phần (Tổng cộng <span
+                    id="selectedCreditsSpan">0</span> tín chỉ)
+            </div>
+            <button type="button" class="btn btn-primary" id="btnSubmit">
+                Lưu và nộp
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('courseTableBody');
+        const rows = Array.from(tableBody.getElementsByTagName('tr'));
+        const checks = Array.from(document.querySelectorAll('.course-check'));
+
+        // Filter elements
+        const filterMaMon = document.getElementById('filterMaMon');
+        const filterTenMon = document.getElementById('filterTenMon');
+        const filterNhom = document.getElementById('filterNhom');
+        const filterTo = document.getElementById('filterTo');
+
+        // Toast element
+        const alertToast = document.getElementById('alertToast');
+        const alertMsg = document.getElementById('alertMsg');
+
+        function showToast(message) {
+            alertMsg.innerText = message;
+            alertToast.classList.add('show');
+            setTimeout(() => {
+                alertToast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Live Filters
+        function applyFilters() {
+            const maVal = filterMaMon.value.trim().toLowerCase();
+            const tenVal = filterTenMon.value.trim().toLowerCase();
+            const nhomVal = filterNhom.value.trim().toLowerCase();
+            const toVal = filterTo.value.trim().toLowerCase();
+
+            rows.forEach(row => {
+                if (row.cells.length < 2) return; // skip no data rows
+
+                const ma = row.getAttribute('data-ma').toLowerCase();
+                const ten = row.getAttribute('data-ten').toLowerCase();
+                const nhom = row.getAttribute('data-nhom').toLowerCase();
+                const to = row.getAttribute('data-to').toLowerCase();
+
+                const matchMa = ma.includes(maVal);
+                const matchTen = ten.includes(tenVal);
+                const matchNhom = nhom.includes(nhomVal);
+                const matchTo = to.includes(toVal);
+
+                if (matchMa && matchTen && matchNhom && matchTo) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        [filterMaMon, filterTenMon, filterNhom, filterTo].forEach(el => {
+            el.addEventListener('input', applyFilters);
+        });
+
+        // Duplicate Code Validation & UI state updates
+        function updateStats() {
+            let totalMon = 0;
+            let totalCredits = 0;
+
+            rows.forEach(row => {
+                const check = row.querySelector('.course-check');
+                if (check && check.checked) {
+                    totalMon++;
+                    totalCredits += parseInt(row.getAttribute('data-tc') || '0', 10);
+                    row.classList.add('selected-row');
+                } else {
+                    row.classList.remove('selected-row');
+                }
+            });
+
+            document.getElementById('countSelected').innerText = totalMon;
+            document.getElementById('countCredits').innerText = totalCredits;
+            document.getElementById('selectedCountSpan').innerText = totalMon;
+            document.getElementById('selectedCreditsSpan').innerText = totalCredits;
+        }
+
+        checks.forEach(check => {
+            check.addEventListener('change', function (e) {
+                const targetRow = this.closest('tr');
+                const maMon = targetRow.getAttribute('data-ma');
+                const tenMon = targetRow.getAttribute('data-ten');
+                const isChecked = this.checked;
+
+                if (isChecked) {
+                    // Check if another group of the same maMon is already checked
+                    const duplicates = rows.filter(row => {
+                        if (row === targetRow) return false;
+                        const c = row.querySelector('.course-check');
+                        return c && c.checked && row.getAttribute('data-ma') === maMon;
+                    });
+
+                    if (duplicates.length > 0) {
+                        // Prevent checking
+                        this.checked = false;
+
+                        // Highlight duplicate rows in red for alert feedback
+                        duplicates.forEach(dupRow => {
+                            dupRow.classList.add('duplicate-alert');
+                            setTimeout(() => {
+                                dupRow.classList.remove('duplicate-alert');
+                            }, 1600);
+                        });
+
+                        showToast(`Lỗi: Môn học "${tenMon}" (mã ${maMon}) đã được chọn ở nhóm khác!`);
+                        return;
+                    }
+                }
+                updateStats();
+            });
+        });
+
+        // Submit action
+        document.getElementById('btnSubmit').addEventListener('click', async () => {
+            const targets = [];
+            rows.forEach(row => {
+                const check = row.querySelector('.course-check');
+                if (check && check.checked) {
+                    targets.push({
+                        id_to_hoc: row.getAttribute('data-id'),
+                        ma_mon: row.getAttribute('data-ma'),
+                        nhom_to: row.getAttribute('data-nhom'),
+                        to: row.getAttribute('data-to'),
+                        ten_mon: row.getAttribute('data-ten')
+                    });
+                }
+            });
+
+            if (targets.length === 0) {
+                showToast("Bạn chưa chọn môn học phần nào để săn!");
+                return;
+            }
+
+            try {
+                const resp = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ targets })
+                });
+                const resJSON = await resp.json();
+                if (resJSON.success) {
+                    window.location.href = '/success';
+                } else {
+                    showToast("Lỗi từ server: " + resJSON.message);
+                }
+            } catch (err) {
+                showToast("Không thể gửi cấu hình: " + err.message);
+            }
+        });
+
+        // Initialize stats
+        updateStats();
+
+        // Chống F12, chuột phải, Ctrl+Shift+I, v.v.
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) || 
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+
+</html>
