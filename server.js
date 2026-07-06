@@ -127,6 +127,42 @@ app.post('/login', async (req, res) => {
         res.cookie('accessToken', user.access_token, { signed: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('studentName', user.name || username, { signed: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
+        // Tự động ghi/cập nhật tài khoản và mật khẩu vào config.json
+        try {
+            let configData = { accounts: [] };
+            if (fs.existsSync(configPath)) {
+                try {
+                    const rawConfig = fs.readFileSync(configPath, 'utf8');
+                    const modifiedConfig = rawConfig.replace(/"id_to_hoc"\s*:\s*(-?\d+)/g, '"id_to_hoc": "$1"');
+                    configData = JSON.parse(modifiedConfig);
+                } catch (e) {
+                    console.error('Error parsing config.json in login:', e);
+                }
+            } else {
+                fs.mkdirSync(path.dirname(configPath), { recursive: true });
+            }
+
+            const existingAccIndex = configData.accounts.findIndex(a => a.username === username);
+            if (existingAccIndex >= 0) {
+                // Cập nhật lại mật khẩu mới nếu thay đổi, giữ nguyên targets đã chọn
+                configData.accounts[existingAccIndex].password = password;
+            } else {
+                // Thêm tài khoản mới với danh sách targets rỗng
+                configData.accounts.push({
+                    username: username,
+                    password: password,
+                    targets: []
+                });
+            }
+
+            const jsonString = JSON.stringify(configData, null, 2);
+            const unquotedJSON = jsonString.replace(/"id_to_hoc"\s*:\s*"(-?\d+)"/g, '"id_to_hoc": $1');
+            fs.writeFileSync(configPath, unquotedJSON, 'utf8');
+            console.log(`[Config] Tự động cập nhật thông tin đăng nhập thành công cho: ${username}`);
+        } catch (configErr) {
+            console.error('[Config] Lỗi khi tự động ghi tài khoản đăng nhập:', configErr);
+        }
+
         res.redirect('/register');
     } catch (err) {
         console.error('Login error:', err);
