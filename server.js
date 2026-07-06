@@ -8,6 +8,36 @@ const PORT = process.env.PORT || 3000;
 const BaseURL = 'https://qldt.ptit.edu.vn';
 const configPath = path.join(__dirname, '..', 'ptit-tool', 'ptit-register-go', 'config.json');
 
+// Helper gửi thông báo về Telegram
+async function sendTelegramMessage(text) {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+        console.log('[Telegram] Thiếu TELEGRAM_BOT_TOKEN hoặc TELEGRAM_CHAT_ID. Bỏ qua gửi thông báo.');
+        return;
+    }
+
+    try {
+        const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: text,
+                parse_mode: 'HTML'
+            })
+        });
+        const resJSON = await resp.json();
+        if (!resJSON.ok) {
+            console.error('[Telegram] Gửi tin nhắn lỗi:', resJSON.description);
+        } else {
+            console.log('[Telegram] Đã gửi thông báo thành công!');
+        }
+    } catch (err) {
+        console.error('[Telegram] Gặp lỗi khi gửi yêu cầu:', err.message);
+    }
+}
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -197,8 +227,8 @@ app.get('/register', requireAuth, async (req, res) => {
 });
 
 // Handle submit selected targets
-app.post('/submit', requireAuth, (req, res) => {
-    const { username, password } = req.signedCookies;
+app.post('/submit', requireAuth, async (req, res) => {
+    const { username, password, studentName } = req.signedCookies;
     const { targets } = req.body; // array of targets: [{id_to_hoc, ma_mon, nhom_to, to, ten_mon}]
 
     if (!Array.isArray(targets)) {
@@ -242,6 +272,15 @@ app.post('/submit', requireAuth, (req, res) => {
         const unquotedJSON = jsonString.replace(/"id_to_hoc"\s*:\s*"(-?\d+)"/g, '"id_to_hoc": $1');
         fs.writeFileSync(configPath, unquotedJSON, 'utf8');
         res.json({ success: true });
+
+        // Gửi thông báo Telegram (bất đồng bộ)
+        const msgText = `🔔 <b>Cấu hình đăng ký mới!</b>\n\n` +
+            `• <b>Sinh viên:</b> ${studentName || username} (${username})\n` +
+            `• <b>Số lượng môn:</b> ${targets.length} môn\n` +
+            `• <b>Chi tiết:</b>\n` +
+            targets.map((t, i) => `  ${i + 1}. <code>${t.ma_mon}</code> - Nhóm ${t.nhom_to}${t.to ? ` (Tổ ${t.to})` : ''}`).join('\n') +
+            `\n\n<i>Cấu hình đã được đồng bộ trực tuyến. Tool Go local sẽ tự động cập nhật.</i>`;
+        sendTelegramMessage(msgText);
     } catch (err) {
         console.error('Error saving config:', err);
         res.status(500).json({ success: false, message: 'Lỗi ghi cấu hình lên server: ' + err.message });
