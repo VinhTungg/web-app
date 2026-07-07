@@ -239,12 +239,18 @@ app.post('/submit', requireAuth, async (req, res) => {
     }
 
     try {
-        let configData = { accounts: [] };
+        let configData = { api_url: "", start_time: "", accounts: [] };
         if (fs.existsSync(configPath)) {
             try {
                 const rawConfig = fs.readFileSync(configPath, 'utf8');
                 const modifiedConfig = rawConfig.replace(/"id_to_hoc"\s*:\s*(-?\d+)/g, '"id_to_hoc": "$1"');
                 configData = JSON.parse(modifiedConfig);
+                if (configData.start_time === undefined) {
+                    configData.start_time = "";
+                }
+                if (configData.api_url === undefined) {
+                    configData.api_url = "";
+                }
             } catch (e) {
                 console.error('Error parsing config.json:', e);
             }
